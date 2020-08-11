@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func sendDataToClient(clientID int, s *Server, packet *[]byte, packageID int) {
 	writeID(packageID, packet)
@@ -59,4 +61,37 @@ func sendChatMessage(clientID int, s *Server, message string, messageType int) {
 	writeString(&packet, message)
 
 	sendDataToAllClientsExcept(clientID, s, &packet, 2)
+}
+
+func sendClientList(clientID int, s *Server) {
+	packet := make([]byte, 0)
+
+	// Get connected users
+	usernames := make([]string, 0)
+	ids := make([]int, 0)
+
+	for _, r := range s.connectedPlayersList {
+		if r.conn != nil {
+			usernames = append(usernames, r.username)
+			ids = append(ids, r.id)
+		}
+	}
+
+	if len(usernames) != len(ids) {
+		fmt.Println("number of client usernames and ids are different")
+		return
+	}
+
+	// Write connected users to packet
+	writeInt(&packet, len(usernames))
+
+	for _, r := range usernames {
+		writeString(&packet, r)
+	}
+
+	for _, r := range ids {
+		writeInt(&packet, r)
+	}
+
+	sendDataToClient(clientID, s, &packet, 3)
 }

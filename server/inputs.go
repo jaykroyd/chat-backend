@@ -6,6 +6,10 @@ import (
 	"strings"
 )
 
+var commandIndexList map[int]func(client, *Server) = map[int]func(client, *Server){
+	0: requestClientList,
+}
+
 func checkForInput(input string, s *Server) {
 	// Stop currently selected server
 	if input == "quit" {
@@ -41,4 +45,12 @@ func checkForInput(input string, s *Server) {
 
 		fmt.Println("Index not found")
 	}
+}
+
+func requestClientList(c client, s *Server) {
+	sendClientList(c.id, s)
+}
+
+func disconnectClient(c client, s *Server) {
+	c.conn.Close()
 }

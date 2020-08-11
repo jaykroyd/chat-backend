@@ -64,9 +64,13 @@ func readChatMessage(c client, s *Server, packet []byte, readPos *int) {
 }
 
 func readClientCommand(c client, s *Server, packet []byte, readPos *int) {
-	msg := readString(packet, readPos)
+	commandID := readInt(packet, readPos)
 
-	if msg == "quit" {
-		c.conn.Close()
+	value, isValid := commandIndexList[commandID]
+	if !isValid {
+		fmt.Println("invalid command id")
+		return
 	}
+
+	value(c, s)
 }
